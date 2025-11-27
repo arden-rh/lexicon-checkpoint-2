@@ -1,0 +1,21 @@
+# Visual Studio temporary files
+.vs/
+
+# Binaries and intermediate files
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.pdb
+*.obj
+
+# User-specific files
+*.suo
+*.user
+*.log
+
+# NuGet packages
+packages/
+
+# Project files that are automatically generated
+*.nupkg
