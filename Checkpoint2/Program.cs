@@ -5,50 +5,31 @@
 using Checkpoint2;
 
 ProductList ListOfProducts = new ProductList();
+string UserInput;
 
 while (true)
 {
-    Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.WriteLine("To enter a new product - follow the steps | To quit - enter: 'Q'");
-    Console.ForegroundColor = ConsoleColor.White;
-    Console.Write("Enter a Category: ");
-    string ProductCategory = Console.ReadLine();
-    ProductCategory = ProductCategory.Trim();
+    ListOfProducts.AddProduct();
 
-    if (ProductCategory.ToUpper() == "Q")
+    ListOfProducts.GetProductList();
+
+    UserInput = Console.ReadLine();
+
+
+    if (UserInput.ToUpper() == "Q")
     {
         break;
     }
 
-    Console.Write("Enter a Product Name: ");
-    string ProductName = Console.ReadLine();
-    ProductName = ProductName.Trim();
-
-    if (ProductName.ToUpper() == "Q")
+    if (UserInput.ToUpper() == "P")
     {
-        break;
+        continue;
     }
 
-    Console.Write("Enter a Price: ");
-    string ProductPriceAsString = Console.ReadLine();
-    ProductPriceAsString = ProductPriceAsString.Trim();
-
-    if (ProductPriceAsString.ToUpper() == "Q")
+    if (UserInput.ToUpper() == "S")
     {
-        break;
+        Console.WriteLine("nu skrev vi s");
+
     }
-
-    decimal ProductPrice;
-    bool isValidPrice = Decimal.TryParse(ProductPriceAsString, out ProductPrice);
-
-
-    Product NewProduct = new Product(ProductCategory, ProductName, ProductPrice);
-    ListOfProducts.AddProduct(NewProduct);
-    Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine("The product was successfully added!");
-    Console.ForegroundColor = ConsoleColor.White;
-    Console.WriteLine("------------------------------------------------");
-
 }
 
-ListOfProducts.GetProductList();
