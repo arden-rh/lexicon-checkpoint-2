@@ -7,9 +7,10 @@ using Checkpoint2;
 ProductList ListOfProducts = new ProductList();
 string UserInput;
 
+ListOfProducts.AddProduct();
+
 while (true)
 {
-    ListOfProducts.AddProduct();
 
     ListOfProducts.GetProductList();
 
@@ -23,12 +24,16 @@ while (true)
 
     if (UserInput.ToUpper() == "P")
     {
+        ListOfProducts.AddProduct();
         continue;
     }
 
     if (UserInput.ToUpper() == "S")
     {
-        Console.WriteLine("nu skrev vi s");
+        Console.Write("Enter a Product Name: ");
+        UserInput = Console.ReadLine();
+        ListOfProducts.SearchProductByName(UserInput);
+        continue;
 
     }
 }
