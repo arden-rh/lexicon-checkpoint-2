@@ -1,132 +1,136 @@
-﻿
-using System.Text.RegularExpressions;
+﻿/* Product List Class */
 
 namespace Checkpoint2
 {
     public class ProductList
     {
-        public List<Product> Products { get; set; } = new List<Product>();
-        public List<Product> SortedProducts { get; set; } = new List<Product>();
+        // Variable declarations
+        public List<Product> Products { get; private set; } = new List<Product>();
+        public List<Product> SortedProducts { get; private set; } = new List<Product>();
         private decimal SumOfProductPrices = 0;
 
-        /* TODO:
-         *  1. add error handling for invalid price input 
-         *  2. add error handling for empty string inputs
-         *  
-         */
-
-
+        // Method to add a new product
         public void AddProduct()
         {
             while (true)
             {
-                /* add error handling */
-
+                /* Start of Enter a new product loop */
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("To enter a new product - follow the steps | To quit - enter: \"Q\"");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.Write("Enter a Category: ");
-                string ProductCategory = Console.ReadLine();
-                ProductCategory = ProductCategory.Trim();
 
-                if (ProductCategory.ToUpper() == "Q")
+                // Get product details from user: Category, Name, Price
+                string ProductCategory = InputHelper.GetValidatedStringInput("Category", out bool isQuit);
+
+                // Check for quit command
+                if (isQuit)
                 {
                     break;
                 }
 
-                Console.Write("Enter a Product Name: ");
-                string ProductName = Console.ReadLine();
-                ProductName = ProductName.Trim();
+                string ProductName = InputHelper.GetValidatedStringInput("Name", out isQuit);
 
-                if (ProductName.ToUpper() == "Q")
+                // Check for quit command
+                if (isQuit)
                 {
                     break;
                 }
 
-                Console.Write("Enter a Price: ");
-                string ProductPriceAsString = Console.ReadLine();
-                ProductPriceAsString = ProductPriceAsString.Trim();
+                // Get and validate product price
+                decimal ProductPrice = 0;
+                bool isValidPrice = false;
 
-                if (ProductPriceAsString.ToUpper() == "Q")
+                do
+                {
+                    string ProductPriceAsString = InputHelper.GetValidatedStringInput("Price", out isQuit);
+                    // Check for quit command
+                    if (isQuit)
+                    {
+                        break;
+                    }
+                    isValidPrice = InputHelper.TryParseDecimal(ProductPriceAsString, out ProductPrice);
+                    if (!isValidPrice)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Invalid price entered. Please enter a valid decimal number.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+
+                } while (!isValidPrice);
+
+                // Check for quit command
+                if (isQuit)
                 {
                     break;
                 }
 
-                decimal ProductPrice;
-                bool isValidPrice = Decimal.TryParse(ProductPriceAsString, out ProductPrice);
-
-
-                Product NewProduct = new Product(ProductCategory, ProductName, ProductPrice);
+                // Create and add the new product to the list
+                string FormattedCategory = FormatStringInput(ProductCategory);
+                string FormattedName = FormatStringInput(ProductName);
+                Product NewProduct = new Product(FormattedCategory, FormattedName, ProductPrice);
                 Products.Add(NewProduct);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("The product was successfully added!");
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("---------------------------------------------------");
-
             }
         }
 
+        // Method to format string input
+        private string FormatStringInput(string Input)
+        {
+            Input = Input.ToLower();
+            return char.ToUpper(Input[0]) + Input.Substring(1);
+        }
+
+        // Method to sort the list of products by price
         private static List<Product> SortListOfProducts(List<Product> ProdList)
         {
             IEnumerable<Product> ProductPriceQuery =
                 from P in ProdList
                 orderby P.Price
                 select P;
-            
+
             return ProductPriceQuery.ToList();
         }
 
+        // Method to get the sum of all product prices
         private static decimal GetSumOfAllProducts(IEnumerable<Product> ProdList) =>
             ProdList.Sum(p => p.Price);
 
+        // Method to display the product list
         public void GetProductList()
         {
 
             SortedProducts = SortListOfProducts(Products);
             Console.WriteLine("---------------------------------------------------");
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{"Category", -25}{"Product", -20}{"Price", -10}");
+            Console.WriteLine($"{"Category",-25}{"Product",-20}{"Price",-10}");
             Console.ForegroundColor = ConsoleColor.White;
 
             foreach (Product p in SortedProducts)
             {
-                Console.WriteLine($"{p.Category, -25}{p.Name, -20}{p.Price, -10}");
+                Console.WriteLine($"{p.Category,-25}{p.Name,-20}{p.Price,-10}");
 
             }
 
             SumOfProductPrices = GetSumOfAllProducts(Products);
-            Console.WriteLine($"\n{"", -25}{"Total amount:", -20}{SumOfProductPrices, -10}");
+            Console.WriteLine($"\n{"",-25}{"Total amount:",-20}{SumOfProductPrices,-10}");
             Console.WriteLine("---------------------------------------------------");
-
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine("To enter a new product - enter: \"P\" | To search for a product - enter \"S\" | To quit - enter: \"Q\"");
-            Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public void SearchProductByName(string Name)
+        // Method to search products by name
+        public bool SearchProductByName(string Name)
         {
-            /* add error handling for empty string */
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("No query provided, exit search.");
+                Console.ForegroundColor = ConsoleColor.White;
+                return false;
+            }
 
-            // If caller didn't provide a name, prompt the user
-            //if (string.IsNullOrWhiteSpace(Name))
-            //{
-            //    Console.Write("Enter product name to search: ");
-            //    Name = Console.ReadLine()?.Trim();
-            //    if (string.IsNullOrWhiteSpace(Name))
-            //    {
-            //        Console.ForegroundColor = ConsoleColor.Red;
-            //        Console.WriteLine("Search cancelled - no input was provided.");
-            //        Console.ForegroundColor = ConsoleColor.White;
-            //        return;
-            //    }
-            //}
-
-            // Ensure we have a sorted list to search in
-            //if (SortedProducts == null || SortedProducts.Count == 0)
-            //{
-            //    SortedProducts = SortListOfProducts(Products);
-            //}
-
+            // LINQ query to find matching products
             IEnumerable<Product> ProductNameQuery =
                 from P in SortedProducts
                 where !string.IsNullOrEmpty(P.Name) && P.Name.IndexOf(Name, StringComparison.OrdinalIgnoreCase) >= 0
@@ -134,31 +138,43 @@ namespace Checkpoint2
 
             List<Product> MatchingItems = ProductNameQuery.ToList();
 
-            Console.WriteLine("---------------------------------------------------");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{"Category",-25}{"Product",-20}{"Price",-10}");
-            Console.ForegroundColor = ConsoleColor.White;
-
-            // Print all products, highlighting matches
-            foreach (Product p in SortedProducts)
+            // Display results
+            if (MatchingItems.Count == 0)
             {
-                bool IsMatch = MatchingItems.Contains(p);
-                if (IsMatch)
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"No products found matching the name: \"{Name}\"");
+                Console.ForegroundColor = ConsoleColor.White;
+                return false;
+            }
+            else
+            {
+                Console.WriteLine("---------------------------------------------------");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"{"Category",-25}{"Product",-20}{"Price",-10}");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                // Print all products, highlighting matches
+                foreach (Product p in SortedProducts)
                 {
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.WriteLine($"{p.Category,-25}{p.Name,-20}{p.Price,-10}");
-                    Console.ForegroundColor = ConsoleColor.White;
-                }
-                else
-                {
-                    Console.WriteLine($"{p.Category,-25}{p.Name,-20}{p.Price,-10}");
+                    bool IsMatch = MatchingItems.Contains(p);
+                    if (IsMatch)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine($"{p.Category,-25}{p.Name,-20}{p.Price,-10}");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{p.Category,-25}{p.Name,-20}{p.Price,-10}");
+                    }
                 }
             }
 
             Console.WriteLine("---------------------------------------------------");
-            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("To enter a new product - enter: \"P\" | To search for a product - enter \"S\" | To quit - enter: \"Q\"");
             Console.ForegroundColor = ConsoleColor.White;
+            return true;
         }
     }
 }
