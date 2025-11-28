@@ -171,9 +171,6 @@ namespace Checkpoint2
             }
 
             Console.WriteLine("---------------------------------------------------");
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("To enter a new product - enter: \"P\" | To search for a product - enter \"S\" | To quit - enter: \"Q\"");
-            Console.ForegroundColor = ConsoleColor.White;
             return true;
         }
     }
